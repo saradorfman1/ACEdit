@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ACEdit: Stable Multi-Turn Image Editing via Asymmetric Conditioning. Training an image editor on its own outputs, supervised by a teacher anchored to the original image, so it stays stable across long multi-turn editing sequences.">
+  <meta name="keywords" content="ACEdit, multi-turn image editing, asymmetric conditioning, self-forcing, score distillation, FLUX.2, diffusion">
+  <title>ACEdit: Stable Multi-Turn Image Editing via Asymmetric Conditioning</title>
+
+  <meta property="og:title" content="ACEdit: Stable Multi-Turn Image Editing via Asymmetric Conditioning">
+  <meta property="og:description" content="Training an image editor on its own outputs, supervised by a teacher anchored to the original image, so it stays stable across long multi-turn editing sequences.">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="static/images/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="static/images/favicon-192.png">
+  <link rel="apple-touch-icon" href="static/images/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/index.css">
+</head>
+<body>
+
+<!-- ============================== Header ============================== -->
+<header class="masthead container">
+  <h1 class="title"><span class="title-name"><img class="title-ace" src="static/images/ace.webp" alt="" width="187" height="240">ACEdit</span>Stable Multi&#8209;Turn Image&nbsp;Editing<br><span class="title-accent">via Asymmetric Conditioning</span></h1>
+  <p class="authors">
+    <span class="author"><a href="https://scholar.google.com/citations?user=QWY7OskAAAAJ" target="_blank" rel="noopener">Sara&nbsp;Dorfman</a><sup>*</sup></span>
+    <span class="author"><a href="https://nirgoren.github.io/" target="_blank" rel="noopener">Nir&nbsp;Goren</a><sup>*</sup></span>
+    <span class="author"><span class="author-name">Gal&nbsp;Barak</span><sup>*</sup></span>
+    <span class="author"><a href="https://danielcohenor.com/" target="_blank" rel="noopener">Daniel&nbsp;Cohen&#8209;Or</a></span>
+    <span class="author"><a href="https://orpatashnik.github.io/" target="_blank" rel="noopener">Or&nbsp;Patashnik</a></span>
+  </p>
+  <p class="equal">* Equal contribution</p>
+  <p class="eyebrow">Tel Aviv University</p>
+  <nav class="links">
+    <a class="btn" href="https://arxiv.org/abs/2610.22328" target="_blank" rel="noopener">
+      <svg class="icon-arxiv" viewBox="0 0 448 512" aria-hidden="true"><g transform="matrix(1.5499998,0,0,-1.5499998,-123.19936,553.59966)"><path fill="currentColor" d="m 119.65,351.996 c -5.84961,0.13477 -11.1943,-3.29883 -13.502,-8.67578 -2.19629,-5.27051 -0.61914,-8.9668 4.19727,-15.8652 7.05469,-10.3799 78.8242,-96.5625 78.8242,-96.5625 l -15.8828,-14.8633 c -13.3809,-13.3779 -13.9561,-31.333 -1.50977,-43.7754 l 18.4922,-17.6133 -51.5977,-63.377 c -4.00586,-4.26758 -6.48535,-11.7559 -4.24805,-17.1309 2.27832,-5.53613 7.69727,-9.12891 13.6836,-9.07031 3.83398,0.0957 7.43262,1.87402 9.83789,4.86133 l 61.3691,57.0566 94.5762,-90.0703 c 3.19434,-3.08398 7.44336,-4.83984 11.8828,-4.91016 1.60449,0.0039 3.19824,0.245117 4.73242,0.714844 5.7793,1.80566 10.249,6.41797 11.8711,12.252 1.2998,5.47363 -0.27637,11.2334 -4.18164,15.2832 l -83.0859,100.011996 14.8789,13.834 c 11.0957,10.0029 11.1543,27.3906 0.12695,37.4688 l -16.2949,15.6309 56.2559,66.4434 0.0742,0.0859 0.0664,0.0899 c 5.02734,6.53125 7.43164,11.5615 4.83984,17.9395 -3.13379,5.96875 -8.69727,10.29 -15.2559,11.8516 -0.67676,0.0908 -1.35938,0.13574 -2.04297,0.13671 l -0.004,-0.0117 c -4.42871,-0.27051 -8.61035,-2.13086 -11.7754,-5.24023 l -0.13086,-0.10743 -0.12304,-0.11132 -65.207,-59.127 -89.8965,86.2402 c 0,0 -5.33398,6.47754 -10.9707,6.61133 z m 178.104,-33.041 c 0.47852,-0.002 0.95703,-0.0332 1.43164,-0.0957 4.84277,-1.33301 8.95605,-4.54004 11.4316,-8.91016 1.44922,-3.5625 1.00293,-6.45703 -4.19727,-13.2148 l -56.0586,-66.2188 -26.375,25.3027 64.9551,58.9062 c 2.33887,2.41504 5.46484,3.91113 8.8125,4.2168 v 0.0137 z M 192.436,227.402 334.446,57.244 c 2.78711,-3.48926 4.5293,-6.97949 3.3418,-10.9121 -1.16113,-4.30273 -4.43457,-7.71777 -8.68555,-9.05664 -1.08105,-0.333984 -2.20508,-0.503906 -3.33594,-0.505859 -3.20801,0.07617 -6.26953,1.35645 -8.57617,3.58789 l -142.033,135.284999 c -11.1719,11.1719 -9.48242,26.0195 1.39258,36.8945 z"/></g></svg>
+      arXiv
+    </a>
+    <span class="btn btn-soon" aria-disabled="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+      Code <span class="btn-divider" aria-hidden="true"></span> <span class="btn-note">Coming soon</span>
+    </span>
+  </nav>
+</header>
+
+<main class="container">
+
+  <!-- ============================== TL;DR ============================== -->
+  <section class="tldr-block">
+    <p class="tldr-label">TL;DR</p>
+    <p class="tldr-text">
+      Image editors are trained on clean images, but in multi-turn editing they must edit
+      <mark>their own outputs</mark>, causing small errors to accumulate. We reduce this
+      <span class="nowrap">train&ndash;inference</span> gap by training on the editor&rsquo;s own rollouts, guided by a
+      teacher <mark>anchored to the original image</mark> and conditioned on a compound editing instruction.
+    </p>
+  </section>
+
+  <!-- ============================== Teaser ============================== -->
+  <section class="card teaser-card">
+    <div class="turn-viewer" data-seq="otter" data-autoplay="true"></div>
+    <p class="caption teaser-caption">Fifteen consecutive edits, each applied to the previous result.</p>
+  </section>
+
+  <!-- ============================== Abstract ============================== -->
+  <section class="card">
+    <div class="card-head"><h2>Abstract</h2></div>
+    <div class="prose">
+      <p>
+        Image editing models produce impressive results for individual edits, but their quality often
+        deteriorates over multiple editing turns. Each editing turn introduces small distribution shifts that
+        accumulate over successive edits, creating a gap between the input distributions encountered during
+        the editor&rsquo;s original training and multi-turn inference. We introduce a training scheme that makes
+        multi-turn image editing stable under this accumulating distribution shift.
+      </p>
+      <p>
+        A key is to force the editor to operate on its own outputs from previous editing turns during
+        training, bringing the principle of Self-Forcing to image editing. The main challenge is that
+        self-generated editing trajectories deviate from ground-truth trajectories, making direct supervision
+        unreliable. We address this challenge through a distillation objective that leverages a teacher image
+        editor to provide a reliable training signal when the model operates on its own previous outputs.
+      </p>
+      <p>
+        We introduce an asymmetric conditioning scheme: while the student performs edits sequentially on its
+        own outputs, the teacher remains anchored to the original clean image and receives a compound editing
+        instruction. Experiments show substantially reduced degradation over long multi-turn sequences while
+        maintaining editing quality and instruction adherence.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================== Problem ============================== -->
+  <section class="card">
+    <div class="card-head"><h2>The problem</h2></div>
+    <p class="problem-line">
+      In multi-turn editing, every output becomes the next input. Small errors compound: colors drift and
+      details wash out, even when the editor is asked to change nothing.
+    </p>
+    <figure class="figure">
+      <div class="drift-strip" data-seq="elephant" data-method="base" data-turns="0,5,10,15,20"></div>
+      <figcaption>
+        FLUX.2 Klein over 20 turns: four edits, each followed by four &ldquo;keep the image as is&rdquo; instructions.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================== Method ============================== -->
+  <section class="card">
+    <div class="card-head"><h2>Method</h2></div>
+    <figure class="figure">
+      <img class="method-img" src="static/images/overview.webp" alt="Method overview: self-generated rollout and score-distillation supervision with asymmetric conditioning" loading="lazy">
+      <figcaption>
+        <strong>Left:</strong> the student performs edits along a self-generated rollout, where each output becomes
+        the input to the next turn. Given the previous output I<sub>e&minus;1</sub> and the current instruction, the
+        few-step student produces a clean estimate x&#770;<sup>s</sup><sub>e</sub>.
+        <strong>Right:</strong> score distillation with asymmetric conditioning. The estimate is noised to level
+        &tau; and fed to a frozen teacher and a trainable auxiliary editor. Unlike the student, both are conditioned on
+        the original clean image I<sub>0</sub> and a compound instruction aggregating all edits up to turn e. The
+        teacher represents the desired clean-conditioned distribution, while the auxiliary editor models the
+        distribution the student actually produces; the difference between their predictions pushes the
+        student&rsquo;s multi-turn outputs toward the teacher&rsquo;s clean, non-degraded distribution.
+      </figcaption>
+    </figure>
+  </section>
+
+  <div class="grid-3">
+    <article class="card mini idea">
+      <span class="idea-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg></span>
+      <h3>Self-generated rollouts</h3>
+      <p>The student trains on chains of edits, each applied to its own previous output, just as at inference.</p>
+    </article>
+    <article class="card mini idea">
+      <span class="idea-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M12 7.5V21"/><path d="M8 11h8"/><path d="M4 14a8 8 0 0 0 16 0"/><path d="M4 14l-1.5 2M4 14l2 1M20 14l1.5 2M20 14l-2 1"/></svg></span>
+      <h3>Asymmetric conditioning</h3>
+      <p>The teacher sees the clean source image and a compound instruction, never the student&rsquo;s drifted outputs.</p>
+    </article>
+    <article class="card mini idea">
+      <span class="idea-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></svg></span>
+      <h3>Score distillation</h3>
+      <p>No ground-truth targets needed: a teacher and an auxiliary editor supervise the student&rsquo;s output distribution.</p>
+    </article>
+  </div>
+
+  <section class="card ac-card">
+    <h3 class="ac-title">Asymmetric conditioning, by example</h3>
+    <div class="ac-lane">
+      <p class="ac-who">Student</p>
+      <div class="ac-flow ac-flow-student"><span class="ac-node is-clean"><span class="ac-node-label">I<sub>0</sub></span></span><span class="ac-arrow "><span class="ac-arrow-text">&ldquo;Add a handbag&rdquo;</span><span class="ac-arrow-line"></span></span><span class="ac-node is-own"><span class="ac-node-label">I<sub>1</sub></span></span><span class="ac-arrow "><span class="ac-arrow-text">&ldquo;Make it red&rdquo;</span><span class="ac-arrow-line"></span></span><span class="ac-node is-own"><span class="ac-node-label">I<sub>2</sub></span></span><span class="ac-arrow "><span class="ac-arrow-text">&ldquo;Make it leather&rdquo;</span><span class="ac-arrow-line"></span></span><span class="ac-node is-own"><span class="ac-node-label">I<sub>3</sub></span></span><span class="ac-arrow is-now"><span class="ac-arrow-text">&ldquo;Add a gold buckle&rdquo;</span><span class="ac-arrow-line"></span></span><span class="ac-node is-out"><span class="ac-node-label"><span class="xhat">x</span><sub>4</sub></span></span></div>
+      <p class="ac-note">Edits its own outputs, one instruction at a time. I<sub>1</sub>&ndash;I<sub>3</sub> may already have drifted.</p>
+    </div>
+    <div class="ac-lane is-teacher">
+      <p class="ac-who">Teacher</p>
+      <div class="ac-flow ac-flow-teacher"><span class="ac-node is-clean"><span class="ac-node-label">I<sub>0</sub></span></span><span class="ac-arrow is-compound"><span class="ac-arrow-text">&ldquo;Add a red leather handbag with a gold buckle&rdquo;</span><span class="ac-arrow-line"></span></span><span class="ac-node is-out"><span class="ac-node-label"><span class="xhat">x</span><sub>4</sub></span></span></div>
+      <p class="ac-note">Scores the same output as one compound edit of the clean source, so its signal never depends on drifted images.</p>
+    </div>
+    <p class="ac-legend">
+      <span><i class="ac-dot is-clean"></i>clean source</span>
+      <span><i class="ac-dot is-own"></i>student&rsquo;s own output</span>
+      <span><i class="ac-dot is-out"></i>output being trained (<span class="xhat">x</span><sub>4</sub>)</span>
+    </p>
+  </section>
+
+  <div class="stats">
+    <div class="card stat"><span class="stat-v">FLUX.2 Klein 9B</span><span class="stat-k">4-step distilled student</span></div>
+    <div class="card stat"><span class="stat-v">0.3%</span><span class="stat-k">parameters trained (LoRA r=16)</span></div>
+    <div class="card stat"><span class="stat-v">4.4 h</span><span class="stat-k">training on one B200 GPU</span></div>
+  </div>
+
+  <!-- ============================== Results ============================== -->
+  <section class="card">
+    <div class="card-head"><h2>Results</h2></div>
+    <p class="prose">
+      FLUX.2 Klein before and after our fine-tuning, with the same instructions and seed. Each displayed
+      instruction is followed by no-op instructions (&ldquo;keep the image as is&rdquo;), and the images show the
+      results after those no-ops.
+    </p>
+    <div class="carousel" data-scenes="cat,picnic,oasis,collage,elephant,telescope,horse">
+      <div class="carousel-track"></div>
+      <div class="carousel-nav">
+        <button type="button" class="carousel-btn" data-dir="-1" aria-label="Previous example">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="carousel-dots" role="tablist"></div>
+        <button type="button" class="carousel-btn" data-dir="1" aria-label="Next example">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer container">
+  <p>ACEdit: Stable Multi-Turn Image Editing via Asymmetric Conditioning &middot; Tel Aviv University</p>
+</footer>
+
+<script src="static/js/sequences.js"></script>
+<script src="static/js/index.js"></script>
+</body>
+</html>
